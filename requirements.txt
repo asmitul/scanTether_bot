@@ -1,0 +1,16 @@
+# Telegram Bot
+python-telegram-bot==20.7
+
+# Database
+motor==3.3.2
+pymongo==4.6.1
+pydantic==2.5.2
+
+# HTTP Client
+aiohttp==3.9.1
+
+# Utils
+python-dotenv==1.0.0
+
+# Prometheus
+prometheus_client==0.17.1 
