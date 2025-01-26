@@ -10,7 +10,7 @@ pydantic==2.5.2
 aiohttp==3.9.1
 
 # Utils
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 
 # Prometheus
 prometheus_client==0.17.1 
