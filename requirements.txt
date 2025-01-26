@@ -13,4 +13,4 @@ aiohttp==3.9.1
 python-dotenv==1.0.0
 
 # Prometheus
-prometheus_client==0.17.1 
+prometheus_client==0.21.1 
