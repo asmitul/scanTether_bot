@@ -1,77 +1,38 @@
 version: '3.8'
 
+networks:
+  scantether_network:
+    name: my_scantether_network
+
 services:
-  bot:
-    build: .
-    command: python scripts/start_bot.py
-    volumes:
-      - ./logs:/app/logs
-    depends_on:
-      mongo:
-        condition: service_healthy
-    restart: unless-stopped
+  telegram-bot:
+    build: ./telegram-bot
+    container_name: bot_scantether
+    restart: always
+    networks:
+      - scantether_network
     environment:
-      - MONGODB_URI=mongodb://mongo:27017
-      - MONGODB_DB_NAME=usdt_tracker
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TRONSCAN_API_KEYS=${TRONSCAN_API_KEYS}
-      - LOG_LEVEL=INFO
-
-  scraper:
-    build: .
-    command: python scripts/start_scraper.py
-    volumes:
-      - ./logs:/app/logs
+      - MONGODB_URI=mongodb://mongodb_scantether/
     depends_on:
-      mongo:
-        condition: service_healthy
-    restart: unless-stopped
+      - mongodb_scantether
+
+  data-scraper:
+    build: ./data-scraper
+    container_name: data_scraper_scantether
+    restart: always
+    networks:
+      - scantether_network
     environment:
-      - MONGODB_URI=mongodb://mongo:27017
-      - MONGODB_DB_NAME=usdt_tracker
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TRONSCAN_API_KEYS=${TRONSCAN_API_KEYS}
-      - LOG_LEVEL=INFO
-
-  mongo:
-    image: mongo:4.4
-    volumes:
-      - mongodb_data:/data/db
-    ports:
-      - "27017:27017"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=your_grafana_password
-    ports:
-      - "3000:3000"
+      - MONGODB_URI=mongodb://mongodb_scantether/
     depends_on:
-      - prometheus
+      - mongodb_scantether
 
-volumes:
-  mongodb_data:
-  prometheus_data:
-  grafana_data: 
+  mongodb_scantether:
+    image: mongo:latest
+    container_name: mongodb_scantether
+    restart: always
+    networks:
+      - scantether_network
+    volumes:
+      - ./mongodb/data:/data/db

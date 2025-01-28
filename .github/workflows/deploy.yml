@@ -1,0 +1,62 @@
+name: Deploy with Self-hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "TELEGRAM_BOT_TOKEN=${{ vars.TELEGRAM_BOT_TOKEN }}" > .env
+
+      - name: Backup MongoDB data
+        run: |
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          backup_dir="./mongodb/scantether/backups/$timestamp"
+          mkdir -p "$backup_dir"
+          
+          if [ -d "./mongodb/data" ]; then
+            cp -r ./mongodb/data "$backup_dir"
+          fi
+
+      - name: Stop and remove existing containers
+        run: |
+          docker compose down || true
+
+      - name: Build and start containers
+        run: |
+          docker compose build --no-cache
+          docker compose up -d
+
+      - name: Health check
+        run: |
+          # 等待服务启动
+          sleep 30
+          
+          # 检查 MongoDB 是否正常运行
+          if ! timeout 10s docker exec mongodb_scantether mongosh --eval "db.stats()"; then
+            # 如果新部署失败，恢复最近的备份
+            docker compose down
+            latest_backup=$(ls -t ./mongodb/scantether/backups | head -n 1)
+            if [ ! -z "$latest_backup" ]; then
+              rm -rf ./mongodb/data
+              cp -r "./mongodb/scantether/backups/$latest_backup/data" ./mongodb/
+              docker compose up -d
+              echo "Restored from backup $latest_backup"
+            fi
+            exit 1
+          fi
+
+      - name: Cleanup old backups
+        run: |
+          # 保留最近7天的备份, 但至少保留最新的一个备份
+          find ./mongodb/scantether/backups -type d -mtime +7 ! -name "$(ls -t ./mongodb/scantether/backups | head -n1)" -exec rm -rf {} +
+
