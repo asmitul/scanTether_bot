@@ -1,8 +1,8 @@
 import asyncio
 import aiohttp
-from app import config
-from app import db
-from app.telegram_bot import notify_new_transaction  # 导入通知函数
+from . import config
+from . import db
+from .telegram_bot import notify_new_transaction  # 导入通知函数
 
 # 配置错误重试相关参数
 MAX_RETRIES = 3       # 每次请求最大重试次数

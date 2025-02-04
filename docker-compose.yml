@@ -27,7 +27,7 @@ services:
       - redis
     networks:
       - scantether_network
-    command: python app/poller.py
+    command: python -m app.poller
 
   celery:
     build: .
@@ -45,7 +45,7 @@ services:
     restart: always
     networks:
       - scantether_network
-    command: python app/telegram_bot.py
+    command: python -m app.telegram_bot
 
 networks:
   scantether_network:
