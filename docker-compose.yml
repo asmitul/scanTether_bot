@@ -48,7 +48,7 @@ services:
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
-    command: python app.telegram_bot
+    command: python app/telegram_bot.py
 
 networks:
   scantether_network:
