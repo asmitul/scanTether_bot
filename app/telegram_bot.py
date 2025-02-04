@@ -55,6 +55,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def main() -> None:
     """Start the bot."""
+    print("TELEGRAM_BOT_TOKEN: ", config.TELEGRAM_BOT_TOKEN)
     # Create the Application and pass it your bot's token.
     application = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
 
