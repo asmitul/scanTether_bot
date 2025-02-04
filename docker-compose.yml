@@ -1,38 +1,52 @@
 version: '3.8'
 
+services:
+  redis:
+    image: redis:alpine
+    container_name: scantether_redis
+    restart: always
+    networks:
+      - scantether_network
+
+  api:
+    build: .
+    container_name: scantether_api
+    restart: always
+    depends_on:
+      - redis
+    networks:
+      - scantether_network
+    # 由于没有暴露端口，外部访问可通过内网代理或反向代理来实现
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  poller:
+    build: .
+    container_name: scantether_poller
+    restart: always
+    depends_on:
+      - redis
+    networks:
+      - scantether_network
+    command: python app/poller.py
+
+  celery:
+    build: .
+    container_name: scantether_celery
+    restart: always
+    depends_on:
+      - redis
+    networks:
+      - scantether_network
+    command: celery -A app.tasks.celery_app worker --loglevel=info
+
+  telegram_bot:
+    build: .
+    container_name: scantether_bot
+    restart: always
+    networks:
+      - scantether_network
+    command: python app/telegram_bot.py
+
 networks:
   scantether_network:
-    name: my_scantether_network
-
-services:
-  telegram-bot:
-    build: ./telegram-bot
-    container_name: bot_scantether
-    restart: always
-    networks:
-      - scantether_network
-    environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - MONGODB_URI=mongodb://mongodb_scantether/
-    depends_on:
-      - mongodb_scantether
-
-  data-scraper:
-    build: ./data-scraper
-    container_name: data_scraper_scantether
-    restart: always
-    networks:
-      - scantether_network
-    environment:
-      - MONGODB_URI=mongodb://mongodb_scantether/
-    depends_on:
-      - mongodb_scantether
-
-  mongodb_scantether:
-    image: mongo:latest
-    container_name: mongodb_scantether
-    restart: always
-    networks:
-      - scantether_network
-    volumes:
-      - ./mongodb/data:/data/db
+    external: true 

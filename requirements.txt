@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+aiohttp
+motor
+pymongo
+celery
+redis
+python-telegram-bot 
