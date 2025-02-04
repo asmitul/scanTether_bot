@@ -1,5 +1,7 @@
 # app/config.py
 
+import os
+
 # TRC20 数据源 API（以 Tronscan API 为例，实际接口地址根据需求更改）
 TRONSCAN_API_URL = "https://api.tronscan.org/api/transaction"  
 
@@ -18,6 +20,6 @@ ADDRESSES = [
     # 可以添加更多地址…
 ]
 
-# Telegram Bot 配置
-TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
-TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID" 
+# 从环境变量中获取 Telegram Bot 配置
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "dummy_token")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "dummy_chat_id")
