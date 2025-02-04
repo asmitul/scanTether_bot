@@ -21,5 +21,5 @@ ADDRESSES = [
 ]
 
 # 从环境变量中获取 Telegram Bot 配置
-TELEGRAM_BOT_TOKEN = "7841331210:AAGjIRQWQNnKNgJKMtrNgbh5g_I59viOZdI"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "dummy_token")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "dummy_chat_id")
