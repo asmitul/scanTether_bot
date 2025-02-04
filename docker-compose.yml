@@ -17,9 +17,6 @@ services:
     networks:
       - scantether_network
     # 由于没有暴露端口，外部访问可通过内网代理或反向代理来实现
-    environment:
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   poller:
@@ -48,6 +45,9 @@ services:
     restart: always
     networks:
       - scantether_network
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
     command: python -m app.telegram_bot
 
 networks:
